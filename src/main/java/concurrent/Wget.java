@@ -9,27 +9,33 @@ import java.util.concurrent.TimeUnit;
 public class Wget implements Runnable {
     private final String url;
     private final int speed;
+    private final String whereToDownload;
 
-    public Wget(String url, int speed) {
+    public Wget(String url, int speed, String whereToDownload) {
         this.url = url;
         this.speed = speed;
+        this.whereToDownload = whereToDownload;
     }
 
     @Override
     public void run() {
-        var file = new File("tmp.xml");
+        var file = new File(whereToDownload);
         try (var input = new URL(url).openStream();
              var output = new FileOutputStream(file)) {
             var dataBuffer = new byte[1024];
-            var checkTime = dataBuffer.length * 1000 / speed;
+            var checkTime = System.currentTimeMillis();
+            int totalBytes = 0;
             int bytesRead;
             while ((bytesRead = input.read(dataBuffer, 0, dataBuffer.length)) != -1) {
-                var downloadAt = System.nanoTime();
                 output.write(dataBuffer, 0, bytesRead);
-                long elapsedTime = System.nanoTime() - downloadAt;
-                long elapsedTimeMillis = TimeUnit.NANOSECONDS.toMillis(elapsedTime);
-                if (elapsedTimeMillis < checkTime) {
-                    Thread.sleep(checkTime - elapsedTimeMillis);
+                totalBytes += bytesRead;
+                if (totalBytes >= speed) {
+                    long timeTaken = System.currentTimeMillis() - checkTime;
+                    if (timeTaken < 1000) {
+                        Thread.sleep(1000 - timeTaken);
+                    }
+                    totalBytes = 0;
+                    checkTime = System.currentTimeMillis();
                 }
             }
         } catch (IOException | InterruptedException e) {
@@ -38,13 +44,13 @@ public class Wget implements Runnable {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length != 2 || Integer.parseInt(args[1]) < 0) {
-            System.out.println("Check the arguments");
-            System.exit(0);
+        if (args.length != 3 || Integer.parseInt(args[1]) < 0) {
+            throw new IllegalArgumentException("Invalid number of arguments or second arg is negative");
         }
         String url = args[0];
         int speed = Integer.parseInt(args[1]);
-        Thread wget = new Thread(new Wget(url, speed));
+        String placeToDownload = args[2];
+        Thread wget = new Thread(new Wget(url, speed, placeToDownload));
         wget.start();
         wget.join();
     }

@@ -10,7 +10,8 @@ public final class DCLSingleton {
             synchronized (DCLSingleton.class) {
                 singleton = instance;
                 if (singleton == null) {
-                    instance = singleton = new DCLSingleton();
+                    singleton = new DCLSingleton();
+                    instance = singleton;
                 }
             }
         }

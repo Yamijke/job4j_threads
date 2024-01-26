@@ -12,34 +12,16 @@ public class AccountStorage {
     private final HashMap<Integer, Account> accounts = new HashMap<>();
 
     public synchronized boolean add(Account account) {
-        boolean add;
-        if (!accounts.containsKey(account.id())) {
-            accounts.put(account.id(), new Account(account.id(), account.amount()));
-            add = true;
-        } else {
-            add = false;
-            System.out.println("This Account already exist");
-        }
-        return add;
+        return !accounts.containsKey(account.id())
+                && accounts.putIfAbsent(account.id(), new Account(account.id(), account.amount())) == null;
     }
 
     public synchronized boolean update(Account account) {
-        boolean upd;
-        if (accounts.containsKey(account.id())) {
-            accounts.put(account.id(), account);
-            upd = true;
-        } else {
-            upd = false;
-        }
-        return upd;
+        return accounts.replace(account.id(), accounts.get(account.id()), account);
     }
 
     public synchronized void delete(int id) {
-        if (accounts.containsKey(id)) {
-            accounts.remove(id);
-        } else {
-            System.out.println("This account doesn't exist");
-        }
+        accounts.remove(id);
     }
 
     public synchronized Optional<Account> getById(int id) {
@@ -55,19 +37,12 @@ public class AccountStorage {
         Optional<Account> accFrom = getById(fromId);
         Optional<Account> accTo = getById(toId);
         boolean upd;
-        if (accFrom.isPresent() && accTo.isPresent()) {
-            Account accFr = accFrom.get();
-            Account accT = accTo.get();
-            if (accFrom.get().amount() < amount) {
-                System.out.println("The amount of money is not enough for transfer");
-                upd = false;
-            } else {
-                Account updAccFrom = accFr.withAmount(accFr.amount() - amount);
-                Account updAccTo = accT.withAmount(accT.amount() + amount);
-                accounts.put(fromId, updAccFrom);
-                accounts.put(toId, updAccTo);
-                upd = true;
-            }
+        if (accFrom.isPresent() && accTo.isPresent() && accFrom.get().amount() >= amount) {
+            int accFromTotal = accFrom.get().amount() - amount;
+            int accToTotal = accTo.get().amount() + amount;
+            accounts.put(fromId, new Account(fromId, accFromTotal));
+            accounts.put(toId, new Account(toId, accToTotal));
+            upd = true;
         } else {
             System.out.println("1 or both accounts do not exist");
             upd = false;

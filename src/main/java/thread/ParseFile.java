@@ -13,14 +13,21 @@ public final class ParseFile {
     public String content(Predicate<Character> filter) throws IOException {
         try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
             StringBuilder str = new StringBuilder();
-            String output = "";
             int data;
             while ((data = input.read()) != -1) {
                 if (filter.test((char) data)) {
                     str.append((char) data);
                 }
             }
-            return output;
+            return str.toString();
         }
+    }
+
+    public String getContent() throws IOException {
+        return content(ch -> true);
+    }
+
+    public String getContentWithoutUnicode() throws IOException {
+        return content(ch -> ch < 0x80);
     }
 }

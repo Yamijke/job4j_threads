@@ -12,8 +12,7 @@ public class AccountStorage {
     private final HashMap<Integer, Account> accounts = new HashMap<>();
 
     public synchronized boolean add(Account account) {
-        return !accounts.containsKey(account.id())
-                && accounts.putIfAbsent(account.id(), new Account(account.id(), account.amount())) == null;
+        return accounts.putIfAbsent(account.id(), new Account(account.id(), account.amount())) == null;
     }
 
     public synchronized boolean update(Account account) {
@@ -36,17 +35,20 @@ public class AccountStorage {
     public synchronized boolean transfer(int fromId, int toId, int amount) {
         Optional<Account> accFrom = getById(fromId);
         Optional<Account> accTo = getById(toId);
-        boolean upd;
-        if (accFrom.isPresent() && accTo.isPresent() && accFrom.get().amount() >= amount) {
-            int accFromTotal = accFrom.get().amount() - amount;
-            int accToTotal = accTo.get().amount() + amount;
-            accounts.put(fromId, new Account(fromId, accFromTotal));
-            accounts.put(toId, new Account(toId, accToTotal));
-            upd = true;
-        } else {
-            System.out.println("1 or both accounts do not exist");
-            upd = false;
+        if (!accFrom.isPresent() || !accTo.isPresent()) {
+            System.out.println("One of the accounts does not exist");
+            return false;
         }
-        return upd;
+        Account accFr = accFrom.get();
+        Account accT = accTo.get();
+        if (accFr.amount() < amount) {
+            System.out.println("Not enough funds for the transfer");
+            return false;
+        }
+        Account newAccFrom = new Account(accFr.id(), accFr.amount() - amount);
+        Account newAccTo = new Account(accT.id(), accT.amount() + amount);
+        boolean updateFrom = update(newAccFrom);
+        boolean updateTo = update(newAccTo);
+        return updateFrom && updateTo;
     }
 }

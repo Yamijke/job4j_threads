@@ -33,7 +33,6 @@ class SimpleBlockingQueueTest {
         slave.join();
     }
 
-
     @Test
     void whenSizeIsNotEqualsToAddedElements() throws InterruptedException {
         SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(2);
@@ -49,8 +48,6 @@ class SimpleBlockingQueueTest {
         master.start();
         Thread.sleep(1000);
         assertEquals(2, queue.size());
-
-
         Thread slave = new Thread(() -> {
             try {
                 queue.poll();

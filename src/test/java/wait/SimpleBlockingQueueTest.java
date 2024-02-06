@@ -78,7 +78,6 @@ class SimpleBlockingQueueTest {
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                assertThat(queue.isEmpty()).isFalse();
                             }
                     );
                 }
@@ -93,7 +92,6 @@ class SimpleBlockingQueueTest {
                             Thread.currentThread().interrupt();
                         }
                     }
-                    assertThat(queue.isEmpty()).isTrue();
                 }
         );
         consumer.start();

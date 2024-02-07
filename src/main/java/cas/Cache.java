@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class Cache {
@@ -17,11 +16,7 @@ public class Cache {
     public boolean update(Base model) {
         return memory.computeIfPresent(model.id(), (id, stored) -> {
             if (stored.version() != model.version()) {
-                try {
-                    throw new OptimisticException("Versions are not equal");
-                } catch (OptimisticException e) {
-                    throw new RuntimeException(e);
-                }
+                throw new RuntimeException(new OptimisticException("Versions are not equal"));
             }
             return new Base(id, model.name(), model.version() + 1);
         }) != null;

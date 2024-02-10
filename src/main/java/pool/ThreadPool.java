@@ -27,11 +27,7 @@ public class ThreadPool {
     }
 
     public void work(Runnable job) throws InterruptedException {
-        try {
-            tasks.offer(job);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        tasks.offer(job);
     }
 
     public void shutdown() throws InterruptedException {

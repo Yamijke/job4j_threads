@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.HashMap;
 
-
 public class RolColSum {
 
     public static Sums[] sum(int[][] matrix) {

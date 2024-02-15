@@ -21,16 +21,15 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
     protected Integer compute() {
         if (to - from <= 10) {
             return searchIndex();
-        } else {
-            int mid = from + (to - from) / 2;
-            ParallelIndexSearch<T> leftSearch = new ParallelIndexSearch<>(array, from, mid, target);
-            ParallelIndexSearch<T> rightSearch = new ParallelIndexSearch<>(array, mid, to, target);
-            leftSearch.fork();
-            rightSearch.fork();
-            Integer left = leftSearch.join();
-            Integer right = rightSearch.join();
-            return  Math.max(left, right);
         }
+        int mid = from + (to - from) / 2;
+        ParallelIndexSearch<T> leftSearch = new ParallelIndexSearch<>(array, from, mid, target);
+        ParallelIndexSearch<T> rightSearch = new ParallelIndexSearch<>(array, mid, to, target);
+        leftSearch.fork();
+        rightSearch.fork();
+        Integer left = leftSearch.join();
+        Integer right = rightSearch.join();
+        return Math.max(left, right);
     }
 
     public int searchIndex() {

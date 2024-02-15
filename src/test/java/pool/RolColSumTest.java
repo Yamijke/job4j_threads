@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RolColSumTest {
     @Test
@@ -15,8 +15,15 @@ class RolColSumTest {
                 {7, 8, 9}
         };
         Sums[] data = RolColSum.sum(array);
-        assertThat(data[0].getRowSum()).isEqualTo(6);
-        assertThat(data[2].getColSum()).isEqualTo(18);
+        int[][] expected = {
+                {6, 12},
+                {15, 15},
+                {24, 18}
+        };
+        for (int i = 0; i < array.length; i++) {
+            assertEquals(expected[i][0], data[i].getRowSum());
+            assertEquals(expected[i][1], data[i].getColSum());
+        }
     }
 
     @Test
@@ -27,7 +34,14 @@ class RolColSumTest {
                 {7, 8, 9}
         };
         Sums[] data = RolColSum.asyncSum(array);
-        assertThat(data[0].getRowSum()).isEqualTo(6);
-        assertThat(data[2].getColSum()).isEqualTo(18);
+        int[][] expected = {
+                {6, 12},
+                {15, 15},
+                {24, 18}
+        };
+        for (int i = 0; i < array.length; i++) {
+            assertEquals(expected[i][0], data[i].getRowSum());
+            assertEquals(expected[i][1], data[i].getColSum());
+        }
     }
 }
